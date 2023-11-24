@@ -10,21 +10,26 @@ import UIKit
 final class NewsViewController: UIViewController {
     
     // MARK: - Properties
-    private var tableView: UITableView = {
+    
+    // fixed type missmatch now with lazy var UITableView will be created only when it's first accessed
+    private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.register(NewsTableViewCell.self, forCellReuseIdentifier: "newsCell")
+        // fixed identifier missmatch
+        tableView.register(NewsTableViewCell.self, forCellReuseIdentifier: "NewsCell")
         tableView.dataSource = self
         tableView.delegate = self
         return tableView
     }()
     
     private var news = [News]()
-    private var viewModel: NewsViewModel = DefaultNewViewModel()
-
+    var viewModel: NewsViewModel = DefaultNewsViewModel()
+    
     // MARK: - View life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        // added viewmodel delegate reference (to establishe relationship between the view controller and the view model)
+        viewModel.delegate = self
         setupTableView()
         viewModel.viewDidLoad()
     }
@@ -33,7 +38,7 @@ final class NewsViewController: UIViewController {
     private func setupTableView() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
-
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -46,7 +51,8 @@ final class NewsViewController: UIViewController {
 // MARK: - TableViewDataSource
 extension NewsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        .zero
+        // .zero corrected
+        news.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -61,7 +67,8 @@ extension NewsViewController: UITableViewDataSource {
 // MARK: - TableViewDelegate
 extension NewsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        .zero
+        // .zero corrected
+        UITableView.automaticDimension
     }
 }
 
@@ -69,7 +76,9 @@ extension NewsViewController: UITableViewDelegate {
 extension NewsViewController: NewsViewModelDelegate {
     func newsFetched(_ news: [News]) {
         self.news = news
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
     func showError(_ error: Error) {

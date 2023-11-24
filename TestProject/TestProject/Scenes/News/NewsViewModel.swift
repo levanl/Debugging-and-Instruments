@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol NewsViewModelDelegate {
+protocol NewsViewModelDelegate: AnyObject {
     func newsFetched(_ news: [News])
     func showError(_ error: Error)
 }
@@ -20,7 +20,8 @@ protocol NewsViewModel {
 final class DefaultNewsViewModel: NewsViewModel {
     
     // MARK: - Properties
-    private let newsAPI = "https://newsapi.org/v2/everything?q=tesla&from=2021-11-11&sortBy=publishedAt&apiKey=ce67ca95a69542b484f81bebf9ad36d5"
+    // Api URL corrected
+    private let newsAPI = "https://newsapi.org/v2/everything?q=tesla&from=2023-10-27&sortBy=publishedAt&apiKey=ce67ca95a69542b484f81bebf9ad36d5"
     
     private var newsList = [News]()
 
@@ -28,7 +29,7 @@ final class DefaultNewsViewModel: NewsViewModel {
 
     // MARK: - Public Methods
     func viewDidLoad() {
-        //fetchNews()
+        fetchNews()
     }
     
     // MARK: - Private Methods
@@ -36,10 +37,11 @@ final class DefaultNewsViewModel: NewsViewModel {
         NetworkManager.shared.get(url: newsAPI) { [weak self] (result: Result<Article, Error>) in
             switch result {
             case .success(let article):
-                self?.delegate?.newsFetched(newsList)
-                self?.newsList.append(article.articles)
+                self?.newsList.append(contentsOf: article.articles)
+                self?.delegate?.newsFetched(self?.newsList ?? [])
             case .failure(let error):
                 self?.delegate?.showError(error)
+                print("Error: \(error)")
             }
         }
     }

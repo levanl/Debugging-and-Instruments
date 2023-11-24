@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct News {
-    let authors: String?
+// Decodable protocol added
+struct News: Decodable {
+    let author: String?
     let title: String?
     let urlToImage: String?
 }

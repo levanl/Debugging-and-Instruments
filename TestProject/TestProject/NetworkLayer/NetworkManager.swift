@@ -9,30 +9,40 @@ import Foundation
 
 final class NetworkManager {
     
-    let shared = NetworkManager()
+    static let shared = NetworkManager()
     
-    public init() {}
+    private init() {}
     
     func get<T: Decodable>(url: String, completion: @escaping ((Result<T, Error>) -> Void)) {
         
-        guard let url = URL(string: "") else { return }
+        guard let url = URL(string: url) else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
         
         URLSession.shared.dataTask(with: url) { data, response, error in
             
-            if let error {
+            if let error = error {
                 DispatchQueue.main.async { completion(.failure(error)) }
+                return
             }
             
-            guard let data else { return }
+            guard let data = data else { return }
             
             do {
                 let decoded = try JSONDecoder().decode(T.self, from: data)
-                completion(.success(decoded))
+                DispatchQueue.main.async { completion(.success(decoded)) }
             } catch let error {
-                completion(.failure(error))
+                DispatchQueue.main.async { completion(.failure(error)) }
             }
-        }
+            
+        }.resume()
     }
 }
 
 
+
+enum NetworkError: Error {
+    case invalidURL
+    case emptyData
+}

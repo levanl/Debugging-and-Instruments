@@ -8,6 +8,6 @@
 import Foundation
 
 struct Article: Decodable {
-    let articles: News
+    let articles: [News]
 }
 

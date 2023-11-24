@@ -8,8 +8,9 @@
 import UIKit
 import Kingfisher
 
-final class NewsTableViewCell: UICollectionViewCell {
-
+// fixed Inheritance from UICollectionViewCell to UITableViewCell
+final class NewsTableViewCell: UITableViewCell {
+    
     // MARK: - UI Elements
     private var newsImageView: UIImageView = {
         let imageView = UIImageView()
@@ -20,23 +21,24 @@ final class NewsTableViewCell: UICollectionViewCell {
         imageView.heightAnchor.constraint(equalToConstant: 117).isActive = true
         return imageView
     }()
-
+    
     private var newsTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.isHidden = true
+        // isHidden state changed
+        label.isHidden = false
         return label
     }()
-
+    
     private var newsAuthorLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private lazy var textStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [newsTitleLabel, newsAuthorLabel])
         stackView.axis = .vertical
@@ -44,7 +46,7 @@ final class NewsTableViewCell: UICollectionViewCell {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-
+    
     private lazy var mainStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [newsImageView, textStackView])
         stackView.axis = .horizontal
@@ -53,38 +55,43 @@ final class NewsTableViewCell: UICollectionViewCell {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-
+    
     // MARK: - init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupSubviews()
         setupConstraints()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - Setup
     private func setupSubviews() {
         contentView.addSubview(mainStackView)
     }
-
+    
     private func setupConstraints() {
+        
+        // Corrected constraints
         NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            mainStackView.leadingAnchor.constraint(equalTo: contentView.rightAnchor, constant: 10),
-            mainStackView.trailingAnchor.constraint(equalTo: contentView.leftAnchor, constant: -10),
-            mainStackView.bottomAnchor.constraint(equalTo: contentView.topAnchor, constant: -20)
+            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
         ])
     }
-
+    
     // MARK: - Configure
-    private func configure(with news: News) {
+    /* fixed configure method protection level (it was private now its removed)
+     fixed model news author spelling
+     */
+    func configure(with news: News) {
         let url = URL(string: news.urlToImage ?? "")
         newsImageView.kf.setImage(with: url)
         newsTitleLabel.text = news.title
-        newsAuthorLabel.text = news.authors
+        newsAuthorLabel.text = news.author
     }
 }
 
